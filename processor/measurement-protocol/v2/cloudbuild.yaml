@@ -1,0 +1,27 @@
+steps:
+- name: 'gcr.io/datahem/processor-measurement-protocol-v2:${_TAG}'
+  args: ['--project=$PROJECT_ID', 
+  '--jobName=${_JOB_NAME}',
+  '--stagingLocation=${_STAGING_LOCATION}', 
+  '--gcpTempLocation=${_GCP_TEMP_LOCATION}', 
+  '--runner=${_RUNNER}', 
+  '--zone=${_ZONE}', 
+  '--region=${_REGION}', 
+  '--numWorkers=${_NUM_WORKERS}', 
+  '--maxNumWorkers=${_MAX_NUM_WORKERS}', 
+  '--diskSizeGb=${_DISK_SIZE_GB}', 
+  '--workerMachineType=${_WORKER_MACHINE_TYPE}', 
+  '--config=${_CONFIG}']
+substitutions:
+  _TAG: latest
+  _JOB_NAME: measurement-protocol-v2
+  _STAGING_LOCATION: gs://$PROJECT_ID-datahem-processor/staging
+  _GCP_TEMP_LOCATION: gs://$PROJECT_ID-datahem-processor/gcptemp/
+  _RUNNER: DataflowRunner
+  _ZONE: europe-west1-b
+  _REGION: europe-west1
+  _NUM_WORKERS: '1'
+  _MAX_NUM_WORKERS: '3'
+  _DISK_SIZE_GB: '25'
+  _WORKER_MACHINE_TYPE: n1-standard-1
+  _CONFIG: '{"name":"accountName","properties":[{"id":"ua1234567","views":[{"id":"master","searchEnginesPattern":".*(www\\.google\\.|www\\.bing\\.|search\\.yahoo\\.).*","ignoredReferersPattern":".*(datahem\\.org|klarna\\.com).*","socialNetworksPattern":".*(facebook\\.|instagram\\.|pinterest\\.|youtube\\.|linkedin\\.|twitter\\.).*","includedHostnamesPattern":".*(datahem\\.org).*","excludedBotsPattern":".*(^$|bot|spider|crawler).*","siteSearchPattern":".*q=(([^&#]*)|&|#|$)","timeZone":"Europe/Stockholm","excludedIpsPattern":"(127\\.0\\.0\\.0|172\\.16\\.0\\.0)", "pubSubTopic":"ua1234567-master", "tableSpec":"streams.ua1234567_master"},{"id":"unfiltered","searchEnginesPattern":".*(www\\.google\\.|www\\.bing\\.|search\\.yahoo\\.).*","ignoredReferersPattern":".*(\\.datahem\\.org).*","socialNetworksPattern":".*(facebook\\.|instagram\\.|pinterest\\.|youtube\\.|linkedin\\.|twitter\\.).*","includedHostnamesPattern":".*","excludedBotsPattern":"\\b\\B","siteSearchPattern":".*q=(([^&#]*)|&|#|$)","timeZone":"Europe/Stockholm", "excludedIpsPattern":"\\b\\B", "tableSpec":"streams.ua1234567_unfiltered"}]}]}' 
