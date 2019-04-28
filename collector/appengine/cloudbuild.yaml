@@ -1,0 +1,26 @@
+# gcloud builds submit --config cloudbuild.yaml --no-source
+steps:
+#- name: gcr.io/cloud-builders/gcloud
+#  args: ['components', 'install', 'app-engine-java']
+#- name: gcr.io/cloud-builders/gcloud
+#  args: ['info']
+- name: gcr.io/cloud-builders/git
+  args: ['clone', 'https://github.com/mhlabs/datahem.collector.git']
+- name: maven:3.6.1-jdk-8
+  entrypoint: 'mvn'
+  args: ['-f','./datahem.collector/appengine/pom.xml', 'endpoints-framework:openApiDocs', '-Dendpoints.project.id=${PROJECT_ID}']
+- name: gcr.io/cloud-builders/gcloud
+  args: ['endpoints', 'services', 'deploy', './datahem.collector/appengine/target/openapi-docs/openapi.json']
+- name: maven:3.6.1-jdk-8
+  entrypoint: 'mvn'
+  args: ['-f','./datahem.collector/appengine/pom.xml', 'clean', 'package', '-Dendpoints.project.id=$PROJECT_ID']
+- name: gcr.io/cloud-builders/gcloud
+  args: ['app', 'deploy',  '/workspace/datahem.collector/appengine/target/war/WEB-INF/appengine-web.xml']
+#- name: google/cloud-sdk:latest
+#  args: ['python', '/usr/lib/google-cloud-sdk/platform/google_appengine/appcfg.py', 'update', '/workspace/datahem.collector/appengine/target/war/WEB-INF/']
+#  args: ['gcloud', 'info']
+#- name: maven:3.6.1-jdk-8
+#- name: datahem/maven-appengine-plugin:latest
+#  entrypoint: 'mvn'
+#  args: ['-f','./datahem.collector/appengine/pom.xml', 'appengine:deploy', '-Dendpoints.project.id=${PROJECT_ID}', '-DcloudSdkPath=/builder/google-cloud-sdk']
+#  args: ['-f','./datahem.collector/appengine/pom.xml', 'appengine:deploy', '-Dendpoints.project.id=${PROJECT_ID}', '-DcloudSdkPath=/builder/google-cloud-sdk/bin/']

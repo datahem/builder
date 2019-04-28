@@ -1,9 +1,9 @@
 steps:
-- name: 'gcr.io/datahem/processor-measurement-protocol-v2:${_TAG}'
+- name: 'datahem/processor-measurement-protocol-v2:${_TAG}'
   args: ['--project=$PROJECT_ID', 
   '--jobName=${_JOB_NAME}',
-  '--stagingLocation=${_STAGING_LOCATION}', 
-  '--gcpTempLocation=${_GCP_TEMP_LOCATION}', 
+  '--stagingLocation=gs://${PROJECT_ID}-processor/staging', 
+  '--gcpTempLocation=gs://${PROJECT_ID}-processor/gcptemp/', 
   '--runner=${_RUNNER}', 
   '--zone=${_ZONE}', 
   '--region=${_REGION}', 
@@ -15,8 +15,8 @@ steps:
 substitutions:
   _TAG: latest
   _JOB_NAME: measurement-protocol-v2
-  _STAGING_LOCATION: gs://$PROJECT_ID-datahem-processor/staging
-  _GCP_TEMP_LOCATION: gs://$PROJECT_ID-datahem-processor/gcptemp/
+  #_STAGING_LOCATION: gs://$PROJECT_ID-datahem-processor/staging
+  #_GCP_TEMP_LOCATION: gs://$PROJECT_ID-datahem-processor/gcptemp/
   _RUNNER: DataflowRunner
   _ZONE: europe-west1-b
   _REGION: europe-west1
