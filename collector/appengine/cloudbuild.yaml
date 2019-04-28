@@ -1,0 +1,19 @@
+# gcloud builds submit --config cloudbuild.yaml --no-source
+steps:
+# clone appengine collector
+- name: gcr.io/cloud-builders/git
+  args: ['clone', 'https://github.com/mhlabs/datahem.collector.git']
+# generate endpoints config
+- name: maven:3.6.1-jdk-8
+  entrypoint: 'mvn'
+  args: ['-f','./datahem.collector/appengine/pom.xml', 'endpoints-framework:openApiDocs', '-Dendpoints.project.id=${PROJECT_ID}']
+# deploy endpoints
+- name: gcr.io/cloud-builders/gcloud
+  args: ['endpoints', 'services', 'deploy', './datahem.collector/appengine/target/openapi-docs/openapi.json']
+# package code
+- name: maven:3.6.1-jdk-8
+  entrypoint: 'mvn'
+  args: ['-f','./datahem.collector/appengine/pom.xml', 'clean', 'package', '-Dendpoints.project.id=$PROJECT_ID']
+# deploy to appengine
+- name: gcr.io/cloud-builders/gcloud
+  args: ['app', 'deploy',  '/workspace/datahem.collector/appengine/target/war/WEB-INF/appengine-web.xml']
