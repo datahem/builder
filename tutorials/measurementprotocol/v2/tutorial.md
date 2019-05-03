@@ -46,16 +46,12 @@ In order to run this guide you need a valid GCP project with billing enabled.
 
 
 ## 2. Enable API:s and IAM
-Enable required API:s with deployment manager
-```bash
-gcloud deployment-manager deployments create setup-apis --config infrastructure/measurementprotocol/v2/setup-apis.yaml
-```
+Enable required API:s and give required roles to cloud build service account by running command below.
 
-
-Give required roles to cloud build service account by running command below.
 ```bash
 infrastructure/measurementprotocol/v2/apis-and-roles
 ```
+
 ---
 
 [Check deployment status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
