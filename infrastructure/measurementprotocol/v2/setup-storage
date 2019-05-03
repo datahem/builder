@@ -1,0 +1,8 @@
+#!/bin/bash
+
+gsutil cp README.md gs://$(gcloud config get-value project)-processor/gcptemp/
+gsutil cp README.md gs://$(gcloud config get-value project)-processor/staging/
+gsutil cp README.md gs://$(gcloud config get-value project)-processor/temp/
+gsutil rm gs://$(gcloud config get-value project)-processor/gcptemp/README.md
+gsutil rm gs://$(gcloud config get-value project)-processor/staging/README.md
+gsutil rm gs://$(gcloud config get-value project)-processor/temp/README.md
