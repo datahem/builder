@@ -7,14 +7,13 @@ This guide will show you how to build your own DataHem Measurement Protocol pipe
 
 This guide covers setting up:
 1. Project setup
-2. APIs (Deployment Manager)
+2. APIs and IAM (Deployment Manager)
 3. Storage (BigQuery)
 4. Streams (PubSub)
 5. Collector (AppEngine)
 6. Processor (DataFlow)
 7. Tracker (GA tracker customTask)
-8. Testing
-9. Monitoring
+8. Testing and monitoring
 
 ---
 
@@ -46,16 +45,12 @@ In order to run this guide you need a valid GCP project with billing enabled.
 [Enable billing for your project](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project) 
 
 
-## 1. Enable API:s and IAM
-Enable required API:s with deployment manager by running command below.
+## 2. Enable API:s and IAM
+Enable required API:s with deployment manager and give required roles to cloud build service account by running command below.
 ```bash
-gcloud deployment-manager deployments create setup-apis --config infrastructure/measurementprotocol/v2/setup-apis.yaml --async
+infrastructure/measurementprotocol/v2/apis-and-roles
 ```
-
-Give required roles to cloud build service account
-```bash
-infrastructure/measurementprotocol/v2/cloud-build-add-iam-policy-binding
-```
+---
 
 [Check deployment status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
 
@@ -63,52 +58,67 @@ infrastructure/measurementprotocol/v2/cloud-build-add-iam-policy-binding
 
 [Check IAM status in GCP console](https://console.cloud.google.com/iam-admin/iam?project={{project-id}})
 
-## 2. Set up storage
-Set up BigQuery datasets (streams and backup) and storage bucket for DataFlow jobs ({{project-id}}-processor) by running the command below.
+## 3. Set up storage
+### 3.1. BigQuery datasets and Storage bucket
+Set up BigQuery datasets (streams and backup) and storage bucket for DataFlow jobs by running the command below. Notice that the setup stores data in EU.
 ```bash
 gcloud deployment-manager deployments create setup-apis --config infrastructure/measurementprotocol/v2/setup-processor-resources-eu.yaml --async
 ```
-[Check status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
 
+### 3.2. Dataflow storage folders
+Create required folders in cloud storage for dataflow to work properly.
 ```bash
-gsutil cp README.md gs://$(gcloud config get-value project)-processor/gcptemp/
-gsutil cp README.md gs://$(gcloud config get-value project)-processor/staging/
-
+infrastructure/measurementprotocol/v2/setup-storage
 ```
+---
+[Check deployment status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
 
-## 3. Set up streams
-DataHem uses pubsub for asynchronous messaging between services and you need to set up one for each GA-property you want to track.
+## 4. Set up streams
+DataHem uses pubsub for asynchronous messaging between services. 
 
-Lowercase your property id (UA-XXXXXX-X) and remove the dash sign and assign as PROPERTY_ID 
+Repeat the steps below for each property you want to track.
+
+### 4.1. Set property id
+Lowercase your Google Analytics property id (UA-XXXXXX-X) and remove the dash sign and assign as PROPERTY_ID 
 Example, for UA-123456-7 assign ua1234567 as PROPERTY_ID
 
 Set PROPERTY_ID variable.
 ```bash
 PROPERTY_ID=ua1234567
 ```
+
+### 4.2. Create pubsub
 Then run below to create pubsub streams for that property.
 ```bash
 gcloud deployment-manager deployments create property-$PROPERTY_ID --template infrastructure/measurementprotocol/v2/add-property.py --properties property:$PROPERTY_ID --async
 ```
-Repeat the steps above for each property you want to track in DataHem.
 
-[Check status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
+---
 
-## 4. Set up the Collector
+[Check deployment status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
+
+[Check pubsub status in GCP console](https://console.cloud.google.com/cloudpubsub/topicList?project={{project-id}})
+
+## 5. Set up the Collector
 The DataHem measurement protocol pipeline use AppEngine as the hit collector.
 
-Run gcloud command to initialize AppEngine (click on the cloud shell icon to paste the command to cloud shell). Be careful when selecting the AppEngine region since you can't change it later.
+### 5.1. Initialize App Engine
+Run gcloud command to initialize AppEngine. Be careful when selecting the AppEngine region since you can't change it later.
 ```bash
 gcloud app create
 ```
 
+### 5.2. Deploy collector
 Build and deploy the collector app.
 ```bash
 gcloud builds submit --config collector/appengine/cloudbuild.yaml --no-source --async
 ```
-[Check status in GCP console](https://console.cloud.google.com/cloud-build/builds?project={{project-id}})
+---
+[AppEngine dashboard](https://console.cloud.google.com/appengine)
 
-## 5.1 Processor configuration
+[Check build status in GCP console](https://console.cloud.google.com/cloud-build/builds?project={{project-id}})
+
+## 6.1 Processor configuration
 The DataHem measurement protocol pipeline use DataFlow for processing.
 
 Modify and set the CONFIG variable to reflect your setup. [Detailed documenation about configuration options.](https://github.com/datahem/builder/blob/master/tutorials/measurementprotocol/v2/configuration.md)
@@ -147,83 +157,86 @@ CONFIG='
 }'
 ```
 
-## 5.2 Processor deployment
+## 6.2 Processor deployment
 Build and deploy the processor with the command below. 
 
 ```bash
-gcloud builds submit --config processor/measurementprotocol/v2/cloudbuild.yaml --no-source --async --substitutions=^~^_CONFIG='$CONFIG'
+gcloud builds submit --config processor/measurementprotocol/v2/cloudbuild.yaml --no-source --async --substitutions=^~^_CONFIG="$CONFIG"
 ```
-[Check status in GCP console](https://console.cloud.google.com/cloud-build/builds?project={{project-id}})
-
 ---
-The deployment accepts parameters separated by "~", i.e. *--substitutions=^~^_JOB_NAME=mp2~_CONFIG='$CONFIG'*
 
-_TAG
+### Build parameters
+The build accepts parameters separated by "~", i.e. *--substitutions=^~^_JOB_NAME=mp2~_CONFIG="$CONFIG"
 
-_JOB_NAME
+*_TAG*
 
-_ZONE
+*_JOB_NAME*
 
-_REGION
+*_ZONE*
 
-_NUM_WORKERS
+*_REGION*
 
-_MAX_NUM_WORKERS
+*_NUM_WORKERS*
 
-_DISK_SIZE_GB
+*_MAX_NUM_WORKERS*
 
-_WORKER_MACHINE_TYPE
+*_DISK_SIZE_GB*
 
-_CONFIG
+*_WORKER_MACHINE_TYPE*
 
-The _CONFIG parameter is required (set to the CONFIG variable set in the previous step). 
+*_CONFIG*
+
+The **_CONFIG** parameter is required (set to the CONFIG variable set in the previous step). 
 
 [Default parameter values.](https://github.com/datahem/builder/blob/master/processor/measurementprotocol/v2/cloudbuild.yaml)
 
+---
 
-## 6. Set up Tracker
+[Check build status in GCP console](https://console.cloud.google.com/cloud-build/builds?project={{project-id}})
 
-### 1. Create customTask variable
+## 7. Set up Tracker
+
+### 7.1. Create customTask variable
 Create a [Google Tag Manager](https://tagmanager.google.com) custom javascript variable named **datahem customTask** by copying code from one of:
 
-[Beacon tracker - modern transport option](https://github.com/mhlabs/datahem.tracker/blob/master/src/main/js/org/datahem/measurement_protocol/variables/BeaconTracker.js)
+[Beacon tracker - modern transport option](https://github.com/mhlabs/datahem.tracker/blob/2c8ec795b6b3c8f7590aeeffb34cc1114d3e3208/src/main/js/org/datahem/measurement_protocol/variables/BeaconTracker.js#L21)
 
-[Pixel tracker - standard transport option](https://github.com/mhlabs/datahem.tracker/blob/master/src/main/js/org/datahem/measurement_protocol/variables/PixelTracker.js)
+[Pixel tracker - standard transport option](https://github.com/mhlabs/datahem.tracker/blob/2c8ec795b6b3c8f7590aeeffb34cc1114d3e3208/src/main/js/org/datahem/measurement_protocol/variables/PixelTracker.js#L22)
 
-Set the endpoints variable in the script to match your project.
+Modify the script by setting the endpoints variable to match your project:
 
-```shell
-var endpoints = 'https://{{project_id}}.appspot.com/';
-```
+*var endpoints = 'https://project-id.appspot.com/';*
 
 ---
 
-### 2. Add the customTask to the GA Settings variable
+### 7.2. Add the customTask to the GA Settings variable
 In your Google Analytics Settings variable: 
 - add a field named **customTask** 
 - and set the value to **{{datahem customTask}}**
 
 
-## 7. Test the setup
+## 8. Test and monitor the setup
 
+### 8.1 Test beacon endpoint
 Test the sendBeacon tracking collector endpoint by running command below, you should receive a HTTP response status 204.
 ```bash
 curl \
     -H "Content-Type: application/json" \
     -X POST \
     -d '{"payload": "echo"}' \
-    "https://{{project-id}}.appspot.com/_ah/api/collect/v1/open/ua123456789/" -i
+    "https://$PROJECT_ID.appspot.com/_ah/api/collect/v1/open/ua123456789/" -i
 ```
 
+### 8.2. Test pixel endpoint
 Test the pixel tracking collector endpoint by running command below, you should receive a GIF with a HTTP response status 200.
 ```bash
 curl \
     -H "Content-Type: gif" \
     -X GET \
-    "https://{{project-id}}.appspot.com/gif/?cstream=ua123456789&v=1" -i
+    "https://$PROJECT_ID.appspot.com/gif/?cstream=ua123456789&v=1" -i
 ```
 
-## 8. Monitor the services
+### 8.3 Monitor services
 You can monitor your services by visiting:
 
 [AppEngine dashboard](https://console.cloud.google.com/appengine)
