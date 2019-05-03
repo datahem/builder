@@ -46,7 +46,13 @@ In order to run this guide you need a valid GCP project with billing enabled.
 
 
 ## 2. Enable API:s and IAM
-Enable required API:s with deployment manager and give required roles to cloud build service account by running command below.
+Enable required API:s with deployment manager
+```bash
+gcloud deployment-manager deployments create setup-apis --config infrastructure/measurementprotocol/v2/setup-apis.yaml
+```
+
+
+Give required roles to cloud build service account by running command below.
 ```bash
 infrastructure/measurementprotocol/v2/apis-and-roles
 ```
@@ -62,7 +68,7 @@ infrastructure/measurementprotocol/v2/apis-and-roles
 ### 3.1. BigQuery datasets and Storage bucket
 Set up BigQuery datasets (streams and backup) and storage bucket for DataFlow jobs by running the command below. Notice that the setup stores data in EU.
 ```bash
-gcloud deployment-manager deployments create setup-apis --config infrastructure/measurementprotocol/v2/setup-processor-resources-eu.yaml --async
+gcloud deployment-manager deployments create setup-storage --config infrastructure/measurementprotocol/v2/setup-processor-resources-eu.yaml
 ```
 
 ### 3.2. Dataflow storage folders
@@ -103,7 +109,7 @@ gcloud deployment-manager deployments create property-$PROPERTY_ID --template in
 The DataHem measurement protocol pipeline use AppEngine as the hit collector.
 
 ### 5.1. Initialize App Engine
-Run gcloud command to initialize AppEngine. Be careful when selecting the AppEngine region since you can't change it later.
+Run gcloud command to initialize AppEngine. Be careful when selecting the AppEngine region (europe-west) since you can't change it later.
 ```bash
 gcloud app create
 ```

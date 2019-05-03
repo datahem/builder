@@ -18,7 +18,7 @@ resources:
 - name: bigquery-streams-dataset
   type: create-bigquery-dataset-template.py
   properties:
-    datasetId: streams
+    streamId: streams
     location: EU
 - name: bigquery-backup-dataset
   type: create-bigquery-dataset-template.py
