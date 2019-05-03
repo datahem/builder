@@ -7,8 +7,6 @@
 
 imports:
 - path: enable-api-template.py
-- path: create-bucket-template.py
-- path: create-bigquery-dataset-template.py
 
 resources:
 #enable api:s
