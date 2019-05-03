@@ -10,6 +10,7 @@ Create a project and enable billing if you don't already have a suitable project
 
 ### Measurement protocol pipeline setup
 [![DataHem Measurement Protocol tutorial](http://gstatic.com/cloudssh/images/open-btn.png)](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/datahem/builder&page=editor&tutorial=tutorials/measurementprotocol/v2/tutorial.md)
+
 [DataHem Measurement Protocol tutorial as MD-file](https://github.com/datahem/builder/blob/master/tutorials/measurementprotocol.md)
 
 ## Versions
