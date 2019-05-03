@@ -1,0 +1,8 @@
+#!/bin/bash
+
+PROJECT_ID=$(gcloud config get-value project)
+SERVICE_ACCOUNT=$(gcloud projects list --filter="$PROJECT_ID" --format="value(PROJECT_NUMBER)")@cloudbuild.gserviceaccount.com
+gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT --role roles/editor
+gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT --role roles/appengine.deployer
+gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT --role roles/dataflow.admin
+gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT --role roles/editor

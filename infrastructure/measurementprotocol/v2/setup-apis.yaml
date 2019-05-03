@@ -10,6 +10,11 @@ resources:
 - name: pubsub-api
   type: enable-api-template.py
   properties:
+    api: appengine.googleapis.com
+
+- name: pubsub-api
+  type: enable-api-template.py
+  properties:
     api: pubsub.googleapis.com
 
 - name: dataflow-api

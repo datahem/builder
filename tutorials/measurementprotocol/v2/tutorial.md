@@ -6,22 +6,15 @@
 This guide will show you how to build your own DataHem Measurement Protocol pipeline to leverage your existing Google Analytics implementation.
 
 This guide covers setting up:
-1. APIs (Deployment Manager)
-2. Storage (BigQuery)
-3. Streams (PubSub)
-4. Collector (AppEngine)
-5. Processor (DataFlow)
-6. Tracker (GA tracker customTask)
-7. Testing
-8. Monitoring
-
----
-
-In order to run this guide you need a GCP project with billing enabled.
-
-[Create a project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)
-
-[Enable billing for your project](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project) 
+1. Project setup
+2. APIs (Deployment Manager)
+3. Storage (BigQuery)
+4. Streams (PubSub)
+5. Collector (AppEngine)
+6. Processor (DataFlow)
+7. Tracker (GA tracker customTask)
+8. Testing
+9. Monitoring
 
 ---
 
@@ -29,12 +22,46 @@ Click the **Next** button to move to the next step.
 
 <walkthrough-tutorial-duration duration="10"></walkthrough-tutorial-duration>  
 
-## 1. Enable API:s
+## 1. Project setup
+
+**Your active GCP Project ID:** {{project-id}}
+
+Set Project ID if the active GCP Project ID is empty.
+
+```bash
+gcloud config set project [PROJECT_ID]
+```
+
+To list available Project IDs to chose from, run:
+
+```bash
+gcloud projects list
+```
+---
+
+In order to run this guide you need a valid GCP project with billing enabled.
+
+[Create a project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)
+
+[Enable billing for your project](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project) 
+
+
+## 1. Enable API:s and IAM
 Enable required API:s with deployment manager by running command below.
 ```bash
 gcloud deployment-manager deployments create setup-apis --config infrastructure/measurementprotocol/v2/setup-apis.yaml --async
 ```
-[Check status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
+
+Give required roles to cloud build service account
+```bash
+infrastructure/measurementprotocol/v2/cloud-build-add-iam-policy-binding
+```
+
+[Check deployment status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
+
+[Check api status in GCP console](https://console.cloud.google.com/apis/dashboard?project={{project-id}})
+
+[Check IAM status in GCP console](https://console.cloud.google.com/iam-admin/iam?project={{project-id}})
 
 ## 2. Set up storage
 Set up BigQuery datasets (streams and backup) and storage bucket for DataFlow jobs ({{project-id}}-processor) by running the command below.
@@ -42,6 +69,12 @@ Set up BigQuery datasets (streams and backup) and storage bucket for DataFlow jo
 gcloud deployment-manager deployments create setup-apis --config infrastructure/measurementprotocol/v2/setup-processor-resources-eu.yaml --async
 ```
 [Check status in GCP console](https://console.cloud.google.com/dm/deployments?project={{project-id}})
+
+```bash
+gsutil cp README.md gs://$(gcloud config get-value project)-processor/gcptemp/
+gsutil cp README.md gs://$(gcloud config get-value project)-processor/staging/
+
+```
 
 ## 3. Set up streams
 DataHem uses pubsub for asynchronous messaging between services and you need to set up one for each GA-property you want to track.
@@ -51,7 +84,7 @@ Example, for UA-123456-7 assign ua1234567 as PROPERTY_ID
 
 Set PROPERTY_ID variable.
 ```bash
-PROPERTY_ID = ua1234567
+PROPERTY_ID=ua1234567
 ```
 Then run below to create pubsub streams for that property.
 ```bash
@@ -71,7 +104,7 @@ gcloud app create
 
 Build and deploy the collector app.
 ```bash
-gcloud builds submit --config cloudbuild.yaml --no-source --async
+gcloud builds submit --config collector/appengine/cloudbuild.yaml --no-source --async
 ```
 [Check status in GCP console](https://console.cloud.google.com/cloud-build/builds?project={{project-id}})
 
@@ -118,7 +151,7 @@ CONFIG='
 Build and deploy the processor with the command below. 
 
 ```bash
-gcloud builds submit --config cloudbuild.yaml --no-source --async --substitutions=^~^_CONFIG='$CONFIG'
+gcloud builds submit --config processor/measurementprotocol/v2/cloudbuild.yaml --no-source --async --substitutions=^~^_CONFIG='$CONFIG'
 ```
 [Check status in GCP console](https://console.cloud.google.com/cloud-build/builds?project={{project-id}})
 
