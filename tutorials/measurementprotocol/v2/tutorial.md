@@ -192,7 +192,7 @@ The **_CONFIG** parameter is required (set to the CONFIG variable set in the pre
 
 ---
 
-[Check status in GCP console](https://console.cloud.google.com/cloud-build/builds?project={{project-id}})
+[Check build status in GCP console](https://console.cloud.google.com/cloud-build/builds?project={{project-id}})
 
 ## 7. Set up Tracker
 
