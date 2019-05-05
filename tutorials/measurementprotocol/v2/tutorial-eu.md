@@ -149,6 +149,11 @@ Build and deploy the processor with the command below.
 ```bash
 gcloud builds submit --config processor/measurementprotocol/v2/cloudbuild.yaml --no-source --async --substitutions=^~^_CONFIG="$CONFIG"
 ```
+
+```regex
+(.*)
+```
+
 ---
 
 ### Build parameters
