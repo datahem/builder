@@ -1,0 +1,49 @@
+#!/bin/bash
+# Copyright (C) 2018 - 2019 Robert Sahlin
+# This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+# Variables
+APP_REGION=europe-west
+
+# Setup API:s
+echo ------ step 1 ------
+echo Setup API:s
+gcloud services enable cloudbuild.googleapis.com deploymentmanager.googleapis.com compute.googleapis.com dataflow.googleapis.com pubsub.googleapis.com appengine.googleapis.com
+
+# Setup roles
+echo ------ step 2 ------
+echo Setup roles (IAM)
+PROJECT_ID=$(gcloud config get-value project)
+SERVICE_ACCOUNT=$(gcloud projects list --filter="$PROJECT_ID" --format="value(PROJECT_NUMBER)")@cloudbuild.gserviceaccount.com
+gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT --role roles/editor
+gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT --role roles/appengine.deployer
+gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT --role roles/dataflow.admin
+gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT --role roles/editor
+
+# Setup storage
+echo ------ step 3 ------
+echo Setup bigquery datasets and dataflow cloud storage bucket
+gcloud deployment-manager deployments create setup-storage --config infrastructure/measurementprotocol/v2/setup-processor-resources-eu.yaml
+
+# Setup dataflow cloud storage folders
+echo ------ step 4 ------
+echo Setup dataflow cloud storage folders
+gsutil cp README.md gs://$(gcloud config get-value project)-processor/gcptemp/
+gsutil cp README.md gs://$(gcloud config get-value project)-processor/staging/
+gsutil cp README.md gs://$(gcloud config get-value project)-processor/temp/
+gsutil rm gs://$(gcloud config get-value project)-processor/gcptemp/README.md
+gsutil rm gs://$(gcloud config get-value project)-processor/staging/README.md
+gsutil rm gs://$(gcloud config get-value project)-processor/temp/README.md
+
+# Setup pubsub
+echo ------ step 5 ------
+echo Setup pubsub
+gcloud deployment-manager deployments create property-$PROPERTY_ID --template infrastructure/measurementprotocol/v2/add-property.py --properties property:$PROPERTY_ID --async
+
+# Setup app engine collector
+echo ------ step 6 ------
+echo Setup app engine collector
+gcloud app create --region=$APP_REGION
+gcloud builds submit --config collector/appengine/cloudbuild.yaml --no-source --async
