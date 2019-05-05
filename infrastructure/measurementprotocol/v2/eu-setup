@@ -5,7 +5,11 @@
 # You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Variables
+PROJECT_ID=$1
+PROPERTY_ID=$2
 APP_REGION=europe-west
+echo PROJECT_ID '=' ${PROJECT_ID}
+echo PROPERTY_ID '=' ${PROPERTY_ID}
 
 # Setup API:s
 echo ------ step 1 ------
