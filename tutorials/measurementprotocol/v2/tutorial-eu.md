@@ -111,7 +111,9 @@ gcloud deployment-manager deployments create property-$PROPERTY_ID --template in
 ## 4.1 Processor configuration
 The DataHem measurement protocol pipeline use DataFlow for processing.
 
-Modify and set the CONFIG variable to reflect your setup. [Detailed documenation about configuration options.](https://github.com/datahem/builder/blob/master/tutorials/measurementprotocol/v2/configuration.md)
+Modify and set the CONFIG variable to reflect your setup. 
+
+[Detailed documenation about configuration options.](https://github.com/datahem/builder/blob/master/tutorials/measurementprotocol/v2/configuration.md)
 
 ```shell
 CONFIG=' 
@@ -207,7 +209,7 @@ In your Google Analytics Settings variable:
 
 ---
 
-![screenshot](https://github.com/datahem/builder/blob/master/tutorials/measurementprotocol/v2/screenshot.png)
+[Example screenshot](https://github.com/datahem/builder/blob/master/tutorials/measurementprotocol/v2/screenshot.png)
 
 ## 6. Test and monitor the setup
 
