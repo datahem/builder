@@ -16,7 +16,9 @@ Account name, can be anything you want.
 
 Id of the view. 
 
-_Example: "ua1234567"_
+```
+"id":"ua1234567"
+```
 
 ## properties[].pubSubSubscription
 [OPTIONAL, STRING]
@@ -24,56 +26,85 @@ _Example: "ua1234567"_
 Pubsub subscription to read from. 
 
 If none provided then the property id is used to construct a pubsub subscription reference (projects/<PROJECT_ID>/subscriptions/<PROPERTY_ID>). 
-_Example: "ua1234567"_
+
+```
+"pubSubSubscription":"ua1234567"
+```
 
 ## properties[].views[].id 
 [REQUIRED, STRING]
 
 Id of view. 
 
-_Example: "master"_
+```
+"id":"master"
+```
 
 ## properties[].views[].searchEnginesPattern
 [REQUIRED, STRING] 
 
 Regex-pattern to match traffic from search engines. 
 
-_Example: To categorize traffic from sources such as google, bing and yahoo, use ".*(www.google.|www.bing.|search.yahoo.).*"_
+_Example: To categorize traffic from sources such as google, bing and yahoo_
 
-## properties[].views[].ignoredReferrersPattern 
+```
+"searchEnginesPattern":".*(www.google.|www.bing.|search.yahoo.).*"
+```
+
+## properties[].views[].ignoredReferersPattern 
 [REQUIRED, STRING] 
 
-Regex-pattern to match referrers that should be ignored as traffic source. 
+Regex-pattern to match referers that should be ignored as traffic source. 
 
-_Example: To ignore referrers such as datahem.org and klarna.com use: ".*(datahem.org|klarna.com).*"_
+_Example: To ignore referers such as datahem.org and klarna.com_ 
+
+```
+"ignoredReferersPattern":".*(datahem.org|klarna.com).*"
+```
 
 ## properties[].views[].socialNetworksPattern 
 [REQUIRED, STRING]
 
 Regex-pattern to match traffic from social networks. 
 
-_Example: to categorize traffic as coming from social networks such as facebook, instagram, pinterest, youtube, linkedin or twitter, use: ".*(facebook.|instagram.|pinterest.|youtube.|linkedin.|twitter.).*"_
+_Example: to categorize traffic as coming from social networks such as facebook, instagram, pinterest, youtube, linkedin or twitter_ 
+
+```
+"socialNetworksPattern":".*(facebook.|instagram.|pinterest.|youtube.|linkedin.|twitter.).*"
+```
 
 ## properties[].views[].includedHostnamesPattern 
 [REQUIRED, STRING]
 
 Regex-pattern to match hostnames that should be included, the rest is excluded. 
 
-_Example: to include traffic from datahem.org use ".*(datahem\\.org).*"_
+_Example: to include traffic from datahem.org_
+
+```
+ "includedHostnamesPattern":".*(datahem\\.org).*"
+ ```
 
 ## properties[].views[].excludedBotsPattern 
 [REQUIRED, STRING] 
 
 Regex-pattern to match user-agents that should be excluded. 
 
-_Example: filter out empty user agents or user agents containing terms such as bot, spider and crawler by using ".*(^$|bot|spider|crawler).*"_
+_Example: filter out empty user agents or user agents containing terms such as bot, spider and crawler_ 
+
+```
+"excludedBotsPattern":".*(^$|bot|spider|crawler).*"
+```
 
 ## properties[].views[].siteSearchPattern 
 [REQUIRED, STRING] 
 
 Regex-pattern to match site search and search terms. 
 
-_Example: if URL-parameter "q" contains the search term, use ".*q=(([^&#]*)|&|#|$)"_
+_Example: if URL-parameter "q" contains the search term_ 
+
+```
+"siteSearchPattern":".*q=(([^&#]*)|&|#|$)"
+```
 
 ## properties[].views[].timeZone 
 [REQUIRED, STRING]
@@ -82,6 +113,10 @@ Local timezone.
 
 _Example: "Etc/UTC" or "Europe/Stockholm"_
 
+```
+"timeZone":"Etc/UTC"
+```
+
 ## properties[].views[].tableSpec 
 [OPTIONAL, STRING] 
 
@@ -89,12 +124,21 @@ BigQuery table reference to store the data of the view. If none provided then da
 
 *Example: "streams.ua1234567_master"*
 
+```
+"tableSpec":"streams.ua1234567_master"
+```
+
 ## properties[].views[].pubSubTopic 
 [OPTIONAL, STRING] 
 
 Name of the PubSub topic to publish enriched entities to. 
 
 _Example: "ua1234567-master"_
+
+```
+"pubSubTopic":"ua1234567_master"
+```
+
 
 # Example configuration
 Example of a configuration with one property (ua123456789) containing two views (master and unfiltered):
