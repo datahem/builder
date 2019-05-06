@@ -7,7 +7,9 @@ Notice that all regex patterns must follow [java regex syntax](https://docs.orac
 
 Account name, can be anything you want. 
 
-_Example: "DataHem"_
+```
+"name":"DataHem"
+```
 
 ## properties[].id
 [REQUIRED, STRING]
