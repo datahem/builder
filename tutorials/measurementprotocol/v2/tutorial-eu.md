@@ -23,6 +23,10 @@ In order to run this guide you need a valid GCP project with billing enabled.
 
 ---
 
+Please report bugs in [github issues](https://github.com/datahem/builder/issues).
+
+---
+
 Click the **Next** button to move to the next step.
 
 <walkthrough-tutorial-duration duration="10"></walkthrough-tutorial-duration>  
@@ -68,7 +72,7 @@ Run the script below to:
 5. Build and deploy the app engine collector
 
 ```bash
-infrastructure/measurementprotocol/v2/eu-setup
+infrastructure/measurementprotocol/v2/eu-setup $PROJECT_ID $PROPERTY_ID
 ```
 
 ---
@@ -150,10 +154,6 @@ Build and deploy the processor with the command below.
 gcloud builds submit --config processor/measurementprotocol/v2/cloudbuild.yaml --no-source --async --substitutions=^~^_CONFIG="$CONFIG"
 ```
 
-```regex
-(.*)
-```
-
 ---
 
 ### Build parameters
@@ -205,6 +205,9 @@ In your Google Analytics Settings variable:
 - add a field named **customTask** 
 - and set the value to **{{datahem customTask}}**
 
+---
+
+![screenshot](https://github.com/datahem/builder/blob/master/tutorials/measurementprotocol/v2/screenshot.png)
 
 ## 6. Test and monitor the setup
 
